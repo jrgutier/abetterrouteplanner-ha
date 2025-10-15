@@ -16,6 +16,7 @@ python-dotenv>=1.0.0
 homeassistant>=2024.1.0
 
 # Code quality
+ruff>=0.1.0
 black>=23.7.0
 flake8>=6.1.0
 isort>=5.12.0
