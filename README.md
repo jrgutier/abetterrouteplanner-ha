@@ -36,25 +36,46 @@ This integration allows you to monitor your vehicle's telemetry data from [A Bet
 
 ### Quick Setup
 
-1. Go to **Settings** → **Devices & Services**
-2. Click **+ Add Integration**
-3. Search for "A Better Route Planner"
-4. Sign in with your ABRP credentials:
-   - **Email**: Your ABRP account email
-   - **Password**: Your ABRP account password
-   - **API Key** (optional): Leave as default unless you have a custom API key
-5. If you have multiple vehicles, select which one to monitor
+1. **Get your ABRP Session ID** (see below)
+2. Go to **Settings** → **Devices & Services** in Home Assistant
+3. Click **+ Add Integration**
+4. Search for "A Better Route Planner"
+5. Enter your configuration:
+   - **Session ID**: Your ABRP session ID (required)
+   - **Vehicle ID**: Optional - leave blank to monitor all vehicles
+   - **API Key**: Leave as default unless you have a custom API key
 6. Done! Your sensors will appear automatically
+
+### Getting Your ABRP Session ID
+
+Since ABRP uses reCAPTCHA protection, you need to extract your session ID from the browser:
+
+1. **Log in** to [A Better Route Planner](https://abetterrouteplanner.com) in your browser
+2. **Open Developer Tools** (F12 or Right-click → Inspect)
+3. Go to the **Network** tab
+4. **Refresh the page** or navigate in ABRP
+5. Look for a request to `api.iternio.com` containing `/session/`
+6. Click on the request and view the **Request Payload**
+7. Copy the `session_id` value (it's a long string like `37c4267efee530df5ba2933f8117edb5607a59f92df9073`)
+8. Optionally, copy the `wakeup_vehicle_id` if you want to monitor a specific vehicle
+
+**Example Request Payload:**
+```json
+{
+  "session_id": "37c4267efee530df5ba2933f8117edb5607a59f92df9073",
+  "wakeup_vehicle_id": 535799763889
+}
+```
 
 ### How It Works
 
-The integration automatically:
-- Logs into your ABRP account
-- Retrieves your session ID
-- Discovers all vehicles associated with your account
+The integration:
+- Uses your session ID to authenticate with ABRP
 - Fetches telemetry data every 30 seconds
+- Creates 15+ sensors for vehicle data
+- Works with all vehicles in your ABRP account
 
-No need to manually extract session IDs or API keys from browser developer tools!
+**Note:** Session IDs may expire after extended periods of inactivity. If sensors stop updating, simply obtain a new session ID from your browser and update the integration configuration.
 
 ## Development
 

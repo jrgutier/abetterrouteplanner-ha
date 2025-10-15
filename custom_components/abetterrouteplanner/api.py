@@ -22,25 +22,30 @@ class ABRPApiClient:
         self.session = session
         self.api_key = api_key
 
-    async def login(self, email: str, password: str) -> dict[str, Any]:
+    async def login(self, email: str, password: str, session_id: str = "") -> dict[str, Any]:
         """
         Authenticate with ABRP using email and password.
 
         This attempts to login to ABRP and extract session information.
         Returns session_id and list of vehicles.
+
+        Note: ABRP uses reCAPTCHA which we cannot automatically solve.
+        This method works without reCAPTCHA if you provide an existing session_id.
         """
-        # Try authentication via the web interface
-        auth_url = f"{WEB_BASE_URL}/login"
+        auth_url = f"{API_BASE_URL}/session/user_login"
 
         headers = {
             "accept": "application/json, text/plain, */*",
+            "authorization": f"APIKEY {self.api_key}",
             "content-type": "application/json",
             "origin": WEB_BASE_URL,
             "referer": f"{WEB_BASE_URL}/",
         }
 
+        # Use provided session_id or empty string (ABRP creates new session)
         payload = {
-            "email": email,
+            "session_id": session_id,
+            "login": email,
             "password": password,
         }
 
@@ -52,9 +57,8 @@ class ABRPApiClient:
                     if response.status == 401:
                         raise InvalidAuth("Invalid email or password")
 
-                    if response.status == 404:
-                        # Try alternative endpoint
-                        return await self._try_api_login(email, password)
+                    if response.status == 403:
+                        raise InvalidAuth("reCAPTCHA required - please login via browser first")
 
                     response.raise_for_status()
                     data = await response.json()
@@ -66,40 +70,6 @@ class ABRPApiClient:
 
         except aiohttp.ClientError as err:
             _LOGGER.error("Error during login: %s", err)
-            # Try alternative login method
-            return await self._try_api_login(email, password)
-
-    async def _try_api_login(self, email: str, password: str) -> dict[str, Any]:
-        """Try alternative API login endpoint."""
-        auth_url = f"{API_BASE_URL}/auth/login"
-
-        headers = {
-            "accept": "application/json",
-            "authorization": f"APIKEY {self.api_key}",
-            "content-type": "application/json",
-        }
-
-        payload = {
-            "email": email,
-            "password": password,
-        }
-
-        try:
-            async with async_timeout.timeout(10):
-                async with self.session.post(
-                    auth_url, headers=headers, json=payload
-                ) as response:
-                    if response.status == 401:
-                        raise InvalidAuth("Invalid email or password")
-
-                    response.raise_for_status()
-                    data = await response.json()
-
-                    _LOGGER.debug("API login response: %s", data)
-                    return await self._extract_session_info(data)
-
-        except aiohttp.ClientError as err:
-            _LOGGER.error("Error during API login: %s", err)
             raise CannotConnect(f"Unable to connect to ABRP: {err}") from err
 
     async def _extract_session_info(self, data: dict[str, Any]) -> dict[str, Any]:

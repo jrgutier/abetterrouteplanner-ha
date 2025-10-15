@@ -28,45 +28,51 @@ _LOGGER = logging.getLogger(__name__)
 
 STEP_USER_DATA_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_EMAIL): str,
-        vol.Required(CONF_PASSWORD): str,
+        vol.Required(CONF_SESSION_ID): str,
+        vol.Optional(CONF_VEHICLE_ID): str,
         vol.Optional(CONF_API_KEY, default=DEFAULT_API_KEY): str,
     }
 )
 
 
 async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str, Any]:
-    """Validate the user input allows us to connect and perform login."""
+    """Validate the user input allows us to connect."""
     session = async_get_clientsession(hass)
     api_key = data.get(CONF_API_KEY, DEFAULT_API_KEY)
+    session_id = data[CONF_SESSION_ID]
+    vehicle_id = data.get(CONF_VEHICLE_ID)
 
     client = ABRPApiClient(session, api_key)
 
     try:
-        # Attempt login and get session info
-        login_result = await client.login(data[CONF_EMAIL], data[CONF_PASSWORD])
-
-        session_id = login_result["session_id"]
-        vehicles = login_result.get("vehicles", [])
-
-        _LOGGER.info("Successfully logged in. Found %d vehicles", len(vehicles))
-
         # Test the session by fetching telemetry
-        vehicle_id = vehicles[0]["id"] if vehicles else None
-        await client.get_telemetry(session_id, vehicle_id)
+        telemetry_data = await client.get_telemetry(session_id, vehicle_id)
+
+        _LOGGER.debug("Telemetry response: %s", telemetry_data)
+
+        # Extract vehicle info from response if available
+        vehicles = []
+        if "result" in telemetry_data:
+            for vehicle_data in telemetry_data["result"]:
+                vehicle_info = {
+                    "id": str(vehicle_data.get("vehicle_id", "")),
+                    "name": vehicle_data.get("name", f"Vehicle {vehicle_data.get('vehicle_id')}"),
+                }
+                vehicles.append(vehicle_info)
 
         return {
-            "title": f"ABRP - {data[CONF_EMAIL]}",
+            "title": "A Better Route Planner",
             "session_id": session_id,
+            "vehicle_id": vehicle_id,
             "vehicles": vehicles,
             "api_key": api_key,
         }
 
-    except ApiInvalidAuth as err:
-        _LOGGER.error("Invalid credentials: %s", err)
-        raise InvalidAuth from err
     except ApiCannotConnect as err:
         _LOGGER.error("Cannot connect to ABRP: %s", err)
+        raise CannotConnect from err
+    except Exception as err:
+        _LOGGER.error("Unexpected error: %s", err)
         raise CannotConnect from err
 
 
@@ -82,32 +88,20 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> FlowResult:
-        """Handle the initial step - login with email/password."""
+        """Handle the initial step - enter session_id."""
         errors: dict[str, str] = {}
 
         if user_input is not None:
             try:
                 info = await validate_input(self.hass, user_input)
 
-                # Store login info for next step
-                self._login_info = {
-                    CONF_EMAIL: user_input[CONF_EMAIL],
-                    CONF_API_KEY: info["api_key"],
-                    CONF_SESSION_ID: info["session_id"],
-                    CONF_VEHICLES: info["vehicles"],
-                }
-
-                # If vehicles found, let user select one
-                if info["vehicles"]:
-                    return await self.async_step_select_vehicle()
-
-                # No vehicles, create entry with just session
+                # Create the config entry
                 return self.async_create_entry(
                     title=info["title"],
                     data={
-                        CONF_EMAIL: user_input[CONF_EMAIL],
-                        CONF_API_KEY: info["api_key"],
                         CONF_SESSION_ID: info["session_id"],
+                        CONF_VEHICLE_ID: info.get("vehicle_id"),
+                        CONF_API_KEY: info["api_key"],
                     },
                 )
 
@@ -123,43 +117,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
 
-    async def async_step_select_vehicle(
-        self, user_input: dict[str, Any] | None = None
-    ) -> FlowResult:
-        """Handle vehicle selection step."""
-        vehicles = self._login_info[CONF_VEHICLES]
-
-        if user_input is not None:
-            selected_vehicle = user_input[CONF_VEHICLE_ID]
-
-            return self.async_create_entry(
-                title=f"ABRP - {self._login_info[CONF_EMAIL]}",
-                data={
-                    CONF_EMAIL: self._login_info[CONF_EMAIL],
-                    CONF_API_KEY: self._login_info[CONF_API_KEY],
-                    CONF_SESSION_ID: self._login_info[CONF_SESSION_ID],
-                    CONF_VEHICLE_ID: selected_vehicle,
-                },
-            )
-
-        # Build vehicle selection schema
-        vehicle_options = {
-            str(vehicle["id"]): vehicle["name"] for vehicle in vehicles
-        }
-
-        data_schema = vol.Schema(
-            {
-                vol.Required(CONF_VEHICLE_ID): vol.In(vehicle_options),
-            }
-        )
-
-        return self.async_show_form(
-            step_id="select_vehicle",
-            data_schema=data_schema,
-            description_placeholders={
-                "num_vehicles": str(len(vehicles)),
-            },
-        )
 
 
 class CannotConnect(HomeAssistantError):

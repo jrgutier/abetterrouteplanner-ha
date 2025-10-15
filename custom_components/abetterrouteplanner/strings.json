@@ -3,33 +3,26 @@
     "step": {
       "user": {
         "title": "A Better Route Planner",
-        "description": "Sign in with your ABRP account credentials",
+        "description": "Enter your ABRP session information. See README for instructions on obtaining your session ID from the browser.",
         "data": {
-          "email": "Email",
-          "password": "Password",
+          "session_id": "Session ID",
+          "vehicle_id": "Vehicle ID (optional)",
           "api_key": "API Key (optional)"
         },
         "data_description": {
-          "email": "Your A Better Route Planner account email",
-          "password": "Your A Better Route Planner account password",
+          "session_id": "Your ABRP session ID from browser developer tools",
+          "vehicle_id": "Optional: specific vehicle ID to monitor",
           "api_key": "Optional custom API key (leave default if unsure)"
-        }
-      },
-      "select_vehicle": {
-        "title": "Select Vehicle",
-        "description": "Select which vehicle to monitor (found {num_vehicles} vehicles)",
-        "data": {
-          "vehicle_id": "Vehicle"
         }
       }
     },
     "error": {
-      "cannot_connect": "Failed to connect to ABRP. Please check your internet connection and try again.",
-      "invalid_auth": "Invalid email or password. Please check your credentials and try again.",
+      "cannot_connect": "Failed to connect to ABRP. Please check your session ID and internet connection.",
+      "invalid_auth": "Invalid session ID. Please obtain a fresh session ID from your browser.",
       "unknown": "Unexpected error occurred. Please try again."
     },
     "abort": {
-      "already_configured": "This ABRP account is already configured"
+      "already_configured": "This ABRP session is already configured"
     }
   }
 }
