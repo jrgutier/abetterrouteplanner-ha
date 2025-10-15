@@ -1,0 +1,35 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "A Better Route Planner",
+        "description": "Sign in with your ABRP account credentials",
+        "data": {
+          "email": "Email",
+          "password": "Password",
+          "api_key": "API Key (optional)"
+        },
+        "data_description": {
+          "email": "Your A Better Route Planner account email",
+          "password": "Your A Better Route Planner account password",
+          "api_key": "Optional custom API key (leave default if unsure)"
+        }
+      },
+      "select_vehicle": {
+        "title": "Select Vehicle",
+        "description": "Select which vehicle to monitor (found {num_vehicles} vehicles)",
+        "data": {
+          "vehicle_id": "Vehicle"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to ABRP. Please check your internet connection and try again.",
+      "invalid_auth": "Invalid email or password. Please check your credentials and try again.",
+      "unknown": "Unexpected error occurred. Please try again."
+    },
+    "abort": {
+      "already_configured": "This ABRP account is already configured"
+    }
+  }
+}

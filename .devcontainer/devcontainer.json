@@ -1,0 +1,33 @@
+{
+  "name": "ABRP Integration Development",
+  "image": "ghcr.io/home-assistant/devcontainer:stable",
+  "appPort": ["9123:8123"],
+  "postCreateCommand": "container install",
+  "forwardPorts": [8123],
+  "portsAttributes": {
+    "9123": {
+      "label": "Home Assistant"
+    }
+  },
+  "runArgs": ["-e", "GIT_EDITOR=code --wait", "--privileged"],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "visualstudioexptteam.vscodeintellicode",
+        "esbenp.prettier-vscode",
+        "GitHub.vscode-pull-request-github"
+      ],
+      "settings": {
+        "python.linting.pylintEnabled": true,
+        "python.linting.enabled": true,
+        "python.formatting.provider": "black",
+        "editor.formatOnPaste": false,
+        "editor.formatOnSave": true,
+        "editor.formatOnType": true,
+        "files.trimTrailingWhitespace": true
+      }
+    }
+  }
+}

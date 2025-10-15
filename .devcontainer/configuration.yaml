@@ -1,0 +1,9 @@
+default_config:
+
+logger:
+  default: info
+  logs:
+    custom_components.abetterrouteplanner: debug
+
+# Configure the ABRP integration
+abetterrouteplanner:
