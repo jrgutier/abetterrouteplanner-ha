@@ -1,4 +1,5 @@
 """Config flow for A Better Route Planner integration."""
+
 from __future__ import annotations
 
 import logging
@@ -12,14 +13,14 @@ from homeassistant.data_entry_flow import FlowResult
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import ABRPApiClient, CannotConnect as ApiCannotConnect, InvalidAuth as ApiInvalidAuth
+from .api import (
+    ABRPApiClient,
+    CannotConnect as ApiCannotConnect,
+)
 from .const import (
     CONF_API_KEY,
-    CONF_EMAIL,
-    CONF_PASSWORD,
     CONF_SESSION_ID,
     CONF_VEHICLE_ID,
-    CONF_VEHICLES,
     DEFAULT_API_KEY,
     DOMAIN,
 )
@@ -56,7 +57,9 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
             for vehicle_data in telemetry_data["result"]:
                 vehicle_info = {
                     "id": str(vehicle_data.get("vehicle_id", "")),
-                    "name": vehicle_data.get("name", f"Vehicle {vehicle_data.get('vehicle_id')}"),
+                    "name": vehicle_data.get(
+                        "name", f"Vehicle {vehicle_data.get('vehicle_id')}"
+                    ),
                 }
                 vehicles.append(vehicle_info)
 
@@ -116,7 +119,6 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return self.async_show_form(
             step_id="user", data_schema=STEP_USER_DATA_SCHEMA, errors=errors
         )
-
 
 
 class CannotConnect(HomeAssistantError):

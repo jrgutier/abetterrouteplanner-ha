@@ -1,7 +1,7 @@
 """API client for A Better Route Planner."""
+
 from __future__ import annotations
 
-import asyncio
 import logging
 from typing import Any
 
@@ -22,7 +22,9 @@ class ABRPApiClient:
         self.session = session
         self.api_key = api_key
 
-    async def login(self, email: str, password: str, session_id: str = "") -> dict[str, Any]:
+    async def login(
+        self, email: str, password: str, session_id: str = ""
+    ) -> dict[str, Any]:
         """
         Authenticate with ABRP using email and password.
 
@@ -58,7 +60,9 @@ class ABRPApiClient:
                         raise InvalidAuth("Invalid email or password")
 
                     if response.status == 403:
-                        raise InvalidAuth("reCAPTCHA required - please login via browser first")
+                        raise InvalidAuth(
+                            "reCAPTCHA required - please login via browser first"
+                        )
 
                     response.raise_for_status()
                     data = await response.json()
@@ -100,13 +104,17 @@ class ABRPApiClient:
 
         for vehicle in vehicle_data:
             vehicle_id = vehicle.get("id") or vehicle.get("vehicle_id")
-            vehicle_name = vehicle.get("name") or vehicle.get("model") or f"Vehicle {vehicle_id}"
+            vehicle_name = (
+                vehicle.get("name") or vehicle.get("model") or f"Vehicle {vehicle_id}"
+            )
 
             if vehicle_id:
-                vehicles.append({
-                    "id": vehicle_id,
-                    "name": vehicle_name,
-                })
+                vehicles.append(
+                    {
+                        "id": vehicle_id,
+                        "name": vehicle_name,
+                    }
+                )
 
         _LOGGER.info("Found %d vehicles", len(vehicles))
 

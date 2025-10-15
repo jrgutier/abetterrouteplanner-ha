@@ -1,4 +1,5 @@
 """The A Better Route Planner integration."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -86,7 +87,15 @@ class ABRPDataUpdateCoordinator(DataUpdateCoordinator):
         try:
             data = await self.client.get_telemetry(self.session_id, self.vehicle_id)
             _LOGGER.debug("Received data from ABRP: %s", data)
-            return data
+
+            # Extract vehicle data from the result array
+            if data.get("status") == "ok" and data.get("result"):
+                vehicle_data = data["result"][0]
+                _LOGGER.debug("Extracted vehicle data: %s", vehicle_data)
+                return vehicle_data
+
+            _LOGGER.warning("No vehicle data found in response")
+            return None
         except CannotConnect as err:
             raise UpdateFailed(f"Error communicating with ABRP API: {err}") from err
         except Exception as err:

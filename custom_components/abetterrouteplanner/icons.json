@@ -1,0 +1,67 @@
+{
+  "services": {},
+  "entity": {
+    "sensor": {
+      "state_of_charge": {
+        "default": "mdi:battery"
+      },
+      "state_of_energy": {
+        "default": "mdi:battery-charging"
+      },
+      "battery_capacity": {
+        "default": "mdi:battery-high"
+      },
+      "estimated_battery_range": {
+        "default": "mdi:map-marker-distance"
+      },
+      "charging_status": {
+        "default": "mdi:ev-station"
+      },
+      "voltage": {
+        "default": "mdi:flash"
+      },
+      "current": {
+        "default": "mdi:current-ac"
+      },
+      "power": {
+        "default": "mdi:lightning-bolt"
+      },
+      "vehicle_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "battery_temperature": {
+        "default": "mdi:battery-alert"
+      },
+      "cabin_temperature": {
+        "default": "mdi:home-thermometer"
+      },
+      "external_temperature": {
+        "default": "mdi:thermometer"
+      },
+      "latitude": {
+        "default": "mdi:latitude"
+      },
+      "longitude": {
+        "default": "mdi:longitude"
+      },
+      "heading": {
+        "default": "mdi:compass"
+      },
+      "speed": {
+        "default": "mdi:speedometer"
+      },
+      "parking_status": {
+        "default": "mdi:parking"
+      },
+      "driving_status": {
+        "default": "mdi:car"
+      },
+      "car_model": {
+        "default": "mdi:car-info"
+      },
+      "last_update": {
+        "default": "mdi:clock"
+      }
+    }
+  }
+}
