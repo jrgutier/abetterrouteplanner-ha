@@ -40,3 +40,11 @@ ATTR_UTC = "utc"
 ATTR_IS_PARKED = "is_parked"
 ATTR_IS_DRIVING = "is_driving"
 ATTR_HEADING = "heading"
+
+# Weather attributes (from location.weather in telemetry)
+ATTR_WEATHER_HUMIDITY = "weather_humidity"
+ATTR_WEATHER_WIND_SPEED = "weather_wind_speed"
+ATTR_WEATHER_WIND_DEG = "weather_wind_deg"
+ATTR_WEATHER_PRESSURE = "weather_pressure"
+ATTR_WEATHER_DESCRIPTION = "weather_description"
+ATTR_WEATHER_CLOUDS = "weather_clouds"

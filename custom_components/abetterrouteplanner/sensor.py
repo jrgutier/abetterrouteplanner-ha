@@ -50,6 +50,12 @@ from .const import (
     ATTR_IS_PARKED,
     ATTR_IS_DRIVING,
     ATTR_HEADING,
+    ATTR_WEATHER_HUMIDITY,
+    ATTR_WEATHER_WIND_SPEED,
+    ATTR_WEATHER_WIND_DEG,
+    ATTR_WEATHER_PRESSURE,
+    ATTR_WEATHER_DESCRIPTION,
+    ATTR_WEATHER_CLOUDS,
     DOMAIN,
 )
 
@@ -192,6 +198,67 @@ async def async_setup_entry(
             ATTR_EXT_TEMP,
             UnitOfTemperature.CELSIUS,
             SensorDeviceClass.TEMPERATURE,
+            SensorStateClass.MEASUREMENT,
+            None,
+        ),
+        # Weather (from vehicle location)
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Humidity",
+            ATTR_WEATHER_HUMIDITY,
+            PERCENTAGE,
+            SensorDeviceClass.HUMIDITY,
+            SensorStateClass.MEASUREMENT,
+            None,
+        ),
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Wind Speed",
+            ATTR_WEATHER_WIND_SPEED,
+            UnitOfSpeed.METERS_PER_SECOND,
+            SensorDeviceClass.WIND_SPEED,
+            SensorStateClass.MEASUREMENT,
+            None,
+        ),
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Wind Direction",
+            ATTR_WEATHER_WIND_DEG,
+            DEGREE,
+            None,
+            SensorStateClass.MEASUREMENT,
+            None,
+        ),
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Pressure",
+            ATTR_WEATHER_PRESSURE,
+            "hPa",
+            SensorDeviceClass.ATMOSPHERIC_PRESSURE,
+            SensorStateClass.MEASUREMENT,
+            None,
+        ),
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Description",
+            ATTR_WEATHER_DESCRIPTION,
+            None,
+            None,
+            None,
+            None,
+        ),
+        ABRPSensor(
+            coordinator,
+            name_prefix,
+            "Weather Cloud Coverage",
+            ATTR_WEATHER_CLOUDS,
+            PERCENTAGE,
+            None,
             SensorStateClass.MEASUREMENT,
             None,
         ),
@@ -362,11 +429,35 @@ class ABRPSensor(CoordinatorEntity, SensorEntity):
         # Handle nested data structure for telemetry data
         tlm_data = self.coordinator.data.get("tlm", {})
 
-        # Handle external temperature from location.weather.temp
+        # Handle weather data from location.weather
         if self._data_key == ATTR_EXT_TEMP:
             location = tlm_data.get("location", {})
             weather = location.get("weather", {})
             value = weather.get("temp")
+        elif self._data_key == ATTR_WEATHER_HUMIDITY:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("humidity")
+        elif self._data_key == ATTR_WEATHER_WIND_SPEED:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("wind_speed")
+        elif self._data_key == ATTR_WEATHER_WIND_DEG:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("wind_deg")
+        elif self._data_key == ATTR_WEATHER_PRESSURE:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("pressure")
+        elif self._data_key == ATTR_WEATHER_DESCRIPTION:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("description")
+        elif self._data_key == ATTR_WEATHER_CLOUDS:
+            location = tlm_data.get("location", {})
+            weather = location.get("weather", {})
+            value = weather.get("clouds")
         # Handle speed - default to 0 if not present (vehicle is parked)
         elif self._data_key == ATTR_SPEED:
             value = tlm_data.get(self._data_key)

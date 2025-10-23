@@ -82,6 +82,17 @@ def mock_telemetry_response():
             "elevation": 150,
             "car_model": "tesla:m3:19:bt37:awd",
             "utc": 1234567890,
+            "location": {
+                "weather": {
+                    "temp": 22,
+                    "humidity": 65,
+                    "wind_speed": 5.5,
+                    "wind_deg": 180,
+                    "pressure": 1013,
+                    "description": "clear sky",
+                    "clouds": 10,
+                }
+            },
         }
     }
 
